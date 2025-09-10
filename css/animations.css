@@ -151,3 +151,12 @@
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary);
 }
+
+/* Prevent flash by initially hiding modals */
+.modal {
+    display: none;
+}
+
+.modal.show {
+    display: flex;
+}
