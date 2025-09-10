@@ -389,8 +389,8 @@ const UI = {
     shareProfile() {
         if (navigator.share) {
             navigator.share({
-                title: 'CX Miner',
-                text: 'Check out my CX Miner profile!',
+                title: 'CloneX',
+                text: 'Check out my CloneX profile!',
                 url: document.getElementById('referralInput').value
             })
             .catch(error => {
