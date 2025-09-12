@@ -500,3 +500,135 @@
     <script src="js/main.js"></script>
 </body>
 </html>
+
+<!-- Update the shop modal with premium items -->
+<div class="modal" id="shopModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Premium Shop</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="shop-items">
+                <!-- Regular items (existing code) -->
+                <div class="shop-item" data-id="energyPack" data-price="200" data-currency="cx">
+                    <!-- ... existing content ... -->
+                </div>
+                <!-- ... other regular items ... -->
+            </div>
+
+            <!-- Premium Items Section -->
+            <div class="premium-section">
+                <div class="premium-header">
+                    <i class="fas fa-crown"></i>
+                    <h3>Premium Items</h3>
+                </div>
+                
+                <div class="shop-items">
+                    <div class="shop-item premium-shop-item premium-item" data-id="starBooster" data-price="25" data-currency="stars">
+                        <div class="shop-item-icon"><i class="fas fa-star" style="color: #FFD700;"></i></div>
+                        <div class="shop-item-title">Star Booster</div>
+                        <div class="shop-item-desc">+20% earnings for 1 hour</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge star-badge"><i class="fas fa-star"></i> 25 Stars</span>
+                        </div>
+                        <div class="shop-item-action">Purchase</div>
+                    </div>
+                    
+                    <div class="shop-item premium-shop-item premium-item" data-id="tonMultiplier" data-price="0.5" data-currency="ton">
+                        <div class="shop-item-icon"><i class="fab fa-bitcoin" style="color: #0088CC;"></i></div>
+                        <div class="shop-item-title">TON Multiplier</div>
+                        <div class="shop-item-desc">2x earnings for 30 minutes</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge ton-badge"><i class="fas fa-coins"></i> 0.5 TON</span>
+                        </div>
+                        <div class="shop-item-action">Purchase</div>
+                    </div>
+                    
+                    <!-- Add more premium items here -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="closeShopModal">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Update the tasks modal with improved daily streak -->
+<div class="modal" id="tasksModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Daily Tasks</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Improved Daily Streak at the top -->
+            <div class="streak-container">
+                <div class="streak-header">
+                    <i class="fas fa-fire" style="color: #FF6B00;"></i>
+                    <h3>Daily Login Streak</h3>
+                </div>
+                <div class="streak-count" id="streakCount">0 days</div>
+                <div class="streak-reward" id="streakReward">Next Reward: +50 CX</div>
+                <button class="btn" id="claimStreakBtn" style="width: 100%;">Claim Daily Reward</button>
+                
+                <div class="streak-calendar">
+                    <div class="streak-day">S</div>
+                    <div class="streak-day">M</div>
+                    <div class="streak-day">T</div>
+                    <div class="streak-day">W</div>
+                    <div class="streak-day">T</div>
+                    <div class="streak-day">F</div>
+                    <div class="streak-day">S</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 20px 0 15px; color: var(--primary);">Social Tasks</h3>
+            
+            <!-- Updated social tasks with increased rewards -->
+            <div class="social-task" data-platform="telegram" data-url="https://t.me/CloneX_Updates">
+                <div class="social-icon telegram-icon">
+                    <i class="fab fa-telegram"></i>
+                </div>
+                <div class="social-content">
+                    <div class="social-title">Join Telegram Channel</div>
+                    <div class="social-desc">Follow our official Telegram channel</div>
+                </div>
+                <div class="social-action">+150 CX</div>
+            </div>
+            
+            <div class="social-task" data-platform="twitter" data-url="https://x.com/clonex_updates">
+                <div class="social-icon twitter-icon">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <div class="social-content">
+                    <div class="social-title">Follow on Twitter</div>
+                    <div class="social-desc">Follow our official Twitter account</div>
+                </div>
+                <div class="social-action">+150 CX</div>
+            </div>
+            
+            <div class="social-task" data-platform="youtube" data-url="https://youtube.com/c/CloneX">
+                <div class="social-icon" style="background: #FF0000;">
+                    <i class="fab fa-youtube"></i>
+                </div>
+                <div class="social-content">
+                    <div class="social-title">Subscribe on YouTube</div>
+                    <div class="social-desc">Subscribe to our YouTube channel</div>
+                </div>
+                <div class="social-action">+200 CX</div>
+            </div>
+            
+            <!-- Existing game tasks -->
+            <h3 style="margin: 20px 0 15px; color: var(--primary);">Game Tasks</h3>
+            <div class="task-items">
+                <!-- ... existing task items ... -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="closeTasksModal">Close</button>
+            <button class="btn">Claim All</button>
+        </div>
+    </div>
+</div>
