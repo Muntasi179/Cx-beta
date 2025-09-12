@@ -424,3 +424,186 @@ const UI = {
         }
     }
 };
+
+
+// Add these new methods to your UI object
+
+// Update premium shop items
+UI.updatePremiumShop = function() {
+    const premiumItems = document.querySelectorAll('.premium-shop-item');
+    premiumItems.forEach(item => {
+        const itemId = item.getAttribute('data-id');
+        const owned = GameState.data.premiumItems[itemId];
+        
+        if (owned) {
+            item.classList.add('owned');
+            item.querySelector('.shop-item-action').textContent = 'Owned';
+            item.querySelector('.shop-item-action').classList.add('disabled');
+        } else {
+            item.classList.remove('owned');
+            item.querySelector('.shop-item-action').textContent = 'Purchase';
+            item.querySelector('.shop-item-action').classList.remove('disabled');
+        }
+    });
+};
+
+// Update social tasks
+UI.updateSocialTasks = function() {
+    const socialTasks = document.querySelectorAll('.social-task');
+    socialTasks.forEach(task => {
+        const platform = task.getAttribute('data-platform');
+        const completed = GameState.data.socialTasks[platform].completed;
+        
+        if (completed) {
+            task.classList.add('completed');
+            task.querySelector('.social-action').textContent = 'Completed';
+            task.querySelector('.social-action').classList.add('disabled');
+        } else {
+            task.classList.remove('completed');
+            task.querySelector('.social-action').textContent = `+${GameState.data.socialTasks[platform].reward} CX`;
+            task.querySelector('.social-action').classList.remove('disabled');
+        }
+    });
+};
+
+// Update daily streak display
+UI.updateStreakDisplay = function() {
+    const streakCount = document.getElementById('streakCount');
+    const streakReward = document.getElementById('streakReward');
+    const claimStreakBtn = document.getElementById('claimStreakBtn');
+    
+    streakCount.textContent = `${GameState.data.streakData.currentStreak} days`;
+    
+    // Calculate today's reward
+    const dayIndex = Math.min(GameState.data.streakData.currentStreak, 6);
+    const reward = GameState.data.streakData.rewards[dayIndex];
+    streakReward.textContent = `Next Reward: +${reward} CX`;
+    
+    // Check if already claimed today
+    const today = new Date().toDateString();
+    if (GameState.data.streakData.lastClaimDate === today) {
+        claimStreakBtn.textContent = 'Claimed Today';
+        claimStreakBtn.classList.add('disabled');
+    } else {
+        claimStreakBtn.textContent = 'Claim Daily Reward';
+        claimStreakBtn.classList.remove('disabled');
+    }
+    
+    // Update calendar
+    this.updateStreakCalendar();
+};
+
+// Update streak calendar
+UI.updateStreakCalendar = function() {
+    const calendarDays = document.querySelectorAll('.streak-day');
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    calendarDays.forEach((day, index) => {
+        // Reset classes
+        day.classList.remove('active', 'current');
+        
+        // Calculate day offset (adjust based on your week start)
+        const dayOffset = (index - dayOfWeek + 7) % 7;
+        const dayDate = new Date(today);
+        dayDate.setDate(today.getDate() - dayOffset);
+        
+        // Check if this day was claimed
+        if (GameState.data.streakData.lastClaimDate === dayDate.toDateString()) {
+            day.classList.add('active');
+        }
+        
+        // Mark current day
+        if (index === dayOfWeek) {
+            day.classList.add('current');
+        }
+    });
+};
+
+// Update wallet balances display
+UI.updateWalletDisplay = function() {
+    document.getElementById('tonBalance').textContent = GameState.data.tonBalance.toFixed(2);
+    document.getElementById('starBalance').textContent = GameState.data.starBalance;
+    
+    // Also update in modals
+    document.getElementById('modalTonBalance').textContent = `${GameState.data.tonBalance.toFixed(2)} TON`;
+    document.getElementById('modalStarBalance').textContent = `${GameState.data.starBalance} Stars`;
+};
+
+// Enhanced showToast function with z-index fix
+UI.showToast = function(message, type = 'info', title = null) {
+    const toastContainer = document.getElementById('toastContainer');
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.zIndex = '2000'; // Ensure toasts appear above modals
+    
+    // ... rest of the existing showToast code ...
+};
+
+// Add these to your existing setupEventListeners method
+UI.setupEventListeners = function() {
+    // ... existing event listeners ...
+    
+    // Premium item purchase
+    document.querySelectorAll('.premium-shop-item').forEach(item => {
+        item.addEventListener('click', function() {
+            if (this.classList.contains('owned') || this.querySelector('.shop-item-action').classList.contains('disabled')) {
+                return;
+            }
+            
+            const itemId = this.getAttribute('data-id');
+            const price = parseFloat(this.getAttribute('data-price'));
+            const currency = this.getAttribute('data-currency');
+            
+            if (GameState.purchasePremiumItem(itemId, price, currency)) {
+                UI.updateWalletDisplay();
+                UI.updatePremiumShop();
+                UI.showToast('Premium item purchased!', 'success');
+            } else {
+                UI.showToast('Not enough balance for this purchase', 'error');
+            }
+        });
+    });
+    
+    // Social task completion
+    document.querySelectorAll('.social-task').forEach(task => {
+        task.addEventListener('click', function() {
+            if (this.classList.contains('completed') || this.querySelector('.social-action').classList.contains('disabled')) {
+                return;
+            }
+            
+            const platform = this.getAttribute('data-platform');
+            const url = this.getAttribute('data-url');
+            
+            // Open social media URL
+            window.open(url, '_blank');
+            
+            // Complete task after a short delay
+            setTimeout(() => {
+                if (GameState.completeSocialTask(platform)) {
+                    UI.updatePointsDisplay();
+                    UI.updateSocialTasks();
+                    UI.showToast(`Task completed! +${GameState.data.socialTasks[platform].reward} CX`, 'success');
+                }
+            }, 1000);
+        });
+    });
+    
+    // Daily streak claim
+    document.getElementById('claimStreakBtn').addEventListener('click', function() {
+        if (this.classList.contains('disabled')) {
+            return;
+        }
+        
+        const reward = GameState.updateDailyStreak();
+        if (reward) {
+            UI.updatePointsDisplay();
+            UI.updateStreakDisplay();
+            UI.showToast(`Daily reward claimed! +${reward} CX`, 'success');
+        } else {
+            UI.showToast('You have already claimed your daily reward today!', 'error');
+        }
+    });
+};
