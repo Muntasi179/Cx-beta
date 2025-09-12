@@ -124,3 +124,42 @@ const Modals = {
         });
     }
 };
+
+// Add these to your existing setupPurchaseHandlers method
+
+// Setup premium purchase handlers
+document.querySelectorAll('.premium-shop-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const itemId = this.getAttribute('data-id');
+        const price = parseFloat(this.getAttribute('data-price'));
+        const currency = this.getAttribute('data-currency');
+        
+        if (GameState.purchasePremiumItem(itemId, price, currency)) {
+            UI.updateWalletDisplay();
+            UI.updatePremiumShop();
+            UI.showToast('Premium item purchased!', 'success');
+        } else {
+            UI.showToast('Not enough balance for this purchase', 'error');
+        }
+    });
+});
+
+// Setup social task handlers
+document.querySelectorAll('.social-task').forEach(task => {
+    task.addEventListener('click', function() {
+        const platform = this.getAttribute('data-platform');
+        const url = this.getAttribute('data-url');
+        
+        // Open social media URL
+        window.open(url, '_blank');
+        
+        // Complete task after a short delay
+        setTimeout(() => {
+            if (GameState.completeSocialTask(platform)) {
+                UI.updatePointsDisplay();
+                UI.updateSocialTasks();
+                UI.showToast(`Task completed! +${GameState.data.socialTasks[platform].reward} CX`, 'success');
+            }
+        }, 1000);
+    });
+});
