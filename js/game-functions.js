@@ -81,3 +81,54 @@ const GameFunctions = {
         }, 100);
     }
 };
+
+// Add these to your init method
+const GameFunctions = {
+    init() {
+        // ... existing initialization code ...
+        
+        // Initialize new features
+        this.initPremiumFeatures();
+        this.initEnhancedTasks();
+    },
+    
+    // Initialize premium features
+    initPremiumFeatures() {
+        // Check for active boosters
+        this.checkActiveBoosters();
+        
+        // Set up interval to check booster expiration
+        setInterval(() => {
+            this.checkActiveBoosters();
+        }, 60000); // Check every minute
+    },
+    
+    // Check active boosters
+    checkActiveBoosters() {
+        if (!GameState.data.activeBoosters) return;
+        
+        const now = Date.now();
+        Object.keys(GameState.data.activeBoosters).forEach(type => {
+            const booster = GameState.data.activeBoosters[type];
+            if (booster.expires <= now) {
+                this.deactivateBooster(type);
+            }
+        });
+    },
+    
+    // Deactivate booster
+    deactivateBooster(type) {
+        if (GameState.data.activeBoosters && GameState.data.activeBoosters[type]) {
+            delete GameState.data.activeBoosters[type];
+            UI.showToast(`${type} booster has expired`, 'info');
+        }
+    },
+    
+    // Initialize enhanced tasks
+    initEnhancedTasks() {
+        // Update UI for tasks
+        UI.updateSocialTasks();
+        UI.updateStreakDisplay();
+        UI.updatePremiumShop();
+    }
+};
