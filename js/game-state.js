@@ -220,3 +220,166 @@ const GameState = {
         }
     }
 };
+
+// Add these properties to your GameState.data object
+const GameState = {
+    data: {
+        // ... existing properties ...
+        
+        // Premium currency balances
+        tonBalance: 0,
+        starBalance: 0,
+        
+        // Premium items ownership
+        premiumItems: {
+            starBooster: false,
+            tonMultiplier: false,
+            energyShield: false,
+            ultimatePack: false
+        },
+        
+        // Enhanced social tasks with increased rewards
+        socialTasks: {
+            telegram: { completed: false, reward: 150 },
+            twitter: { completed: false, reward: 150 },
+            youtube: { completed: false, reward: 200 }
+        },
+        
+        // Enhanced daily streak system
+        streakData: {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastClaimDate: null,
+            rewards: [50, 75, 100, 150, 200, 250, 300] // Weekly rewards
+        },
+        
+        // New game stats
+        totalEarned: 0,
+        boostersUsed: 0,
+        referralCount: 0
+    },
+    
+    // ... existing methods ...
+    
+    // Add these new methods to your GameState object
+    
+    // Purchase premium item
+    purchasePremiumItem(itemId, price, currency) {
+        if (currency === 'ton' && this.data.tonBalance < price) {
+            return false;
+        }
+        
+        if (currency === 'stars' && this.data.starBalance < price) {
+            return false;
+        }
+        
+        // Deduct cost
+        if (currency === 'ton') {
+            this.data.tonBalance -= price;
+        } else {
+            this.data.starBalance -= price;
+        }
+        
+        // Mark item as purchased
+        this.data.premiumItems[itemId] = true;
+        
+        // Apply item effect
+        this.applyPremiumItemEffect(itemId);
+        
+        this.save();
+        return true;
+    },
+    
+    // Apply premium item effect
+    applyPremiumItemEffect(itemId) {
+        switch(itemId) {
+            case 'starBooster':
+                // Activate star booster for 1 hour
+                this.activateBooster('earnings', 1.2, 3600000);
+                break;
+            case 'tonMultiplier':
+                // Activate 2x multiplier for 30 minutes
+                this.activateBooster('multiplier', 2, 1800000);
+                break;
+            case 'energyShield':
+                // Activate energy shield for 15 minutes
+                this.activateBooster('energyShield', true, 900000);
+                break;
+            case 'ultimatePack':
+                this.data.points += 10000;
+                this.data.starBalance += 100;
+                this.activateBooster('multiplier', 2, 3600000);
+                break;
+        }
+    },
+    
+    // Activate a booster with duration
+    activateBooster(type, value, duration) {
+        const booster = {
+            type: type,
+            value: value,
+            expires: Date.now() + duration
+        };
+        
+        // Add to active boosters
+        this.data.activeBoosters = this.data.activeBoosters || {};
+        this.data.activeBoosters[type] = booster;
+        
+        // Update stats
+        this.data.boostersUsed += 1;
+        
+        // Set timeout to deactivate booster
+        setTimeout(() => {
+            this.deactivateBooster(type);
+        }, duration);
+    },
+    
+    // Complete social task
+    completeSocialTask(platform) {
+        if (this.data.socialTasks[platform] && !this.data.socialTasks[platform].completed) {
+            this.data.socialTasks[platform].completed = true;
+            this.data.points += this.data.socialTasks[platform].reward;
+            this.data.totalEarned += this.data.socialTasks[platform].reward;
+            this.save();
+            return true;
+        }
+        return false;
+    },
+    
+    // Update daily streak
+    updateDailyStreak() {
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        
+        if (this.data.streakData.lastClaimDate === today) {
+            // Already claimed today
+            return false;
+        }
+        
+        if (this.data.streakData.lastClaimDate === yesterday) {
+            // Consecutive day
+            this.data.streakData.currentStreak += 1;
+        } else {
+            // Broken streak
+            this.data.streakData.currentStreak = 1;
+        }
+        
+        // Update longest streak if needed
+        if (this.data.streakData.currentStreak > this.data.streakData.longestStreak) {
+            this.data.streakData.longestStreak = this.data.streakData.currentStreak;
+        }
+        
+        this.data.streakData.lastClaimDate = today;
+        
+        // Calculate reward based on streak
+        const dayIndex = Math.min(this.data.streakData.currentStreak - 1, 6);
+        const reward = this.data.streakData.rewards[dayIndex];
+        
+        // Add reward
+        this.data.points += reward;
+        this.data.totalEarned += reward;
+        
+        this.save();
+        return reward;
+    }
+};
