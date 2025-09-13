@@ -107,6 +107,16 @@
     animation: bounce 2s infinite;
 }
 
+/* Coin spin animation */
+@keyframes coinSpin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+.mining-coin {
+    animation: coinSpin 3s infinite linear;
+}
+
 /* Responsive adjustments */
 @media (max-height: 700px) {
     .mining-object {
@@ -118,7 +128,7 @@
         font-size: 2rem;
     }
     
-    .currency-icon {
+    .balance-coin {
         width: 40px;
         height: 40px;
     }
@@ -131,6 +141,15 @@
         padding: 10px 15px;
         margin: 0 15px;
     }
+}
+
+/* Prevent flash by initially hiding modals */
+.modal {
+    display: none;
+}
+
+.modal.show {
+    display: flex;
 }
 
 /* Custom Scrollbar */
@@ -150,87 +169,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary);
-}
-
-/* Prevent flash by initially hiding modals */
-.modal {
-    display: none;
-}
-
-.modal.show {
-    display: flex;
-}
-
-/* Add these new animations to your animations.css file */
-
-/* Enhanced pulse animation for premium items */
-@keyframes premium-pulse {
-    0%, 100% { 
-        transform: scale(1); 
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
-    }
-    50% { 
-        transform: scale(1.15); 
-        box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
-    }
-}
-
-.premium-item {
-    animation: premium-pulse 3s infinite;
-}
-
-/* Shine animation for premium items */
-@keyframes premium-shine {
-    0% { 
-        background-position: -100% 0; 
-    }
-    100% { 
-        background-position: 200% 0; 
-    }
-}
-
-/* Streak calendar animation */
-@keyframes streak-glow {
-    0%, 100% { 
-        box-shadow: 0 0 5px rgba(0, 216, 255, 0.5);
-    }
-    50% { 
-        box-shadow: 0 0 15px rgba(0, 216, 255, 0.9);
-    }
-}
-
-.streak-day.current {
-    animation: streak-glow 2s infinite;
-}
-
-/* Toast notification improvements */
-@keyframes toast-slide-in {
-    0% { 
-        transform: translateY(-100px); 
-        opacity: 0;
-    }
-    100% { 
-        transform: translateY(0); 
-        opacity: 1;
-    }
-}
-
-.toast.show {
-    animation: toast-slide-in 0.5s ease-out forwards;
-}
-
-/* Modal backdrop blur enhancement */
-@keyframes modal-backdrop {
-    0% { 
-        backdrop-filter: blur(0px);
-        background: rgba(0, 0, 0, 0);
-    }
-    100% { 
-        backdrop-filter: blur(10px);
-        background: rgba(0, 0, 0, 0.8);
-    }
-}
-
-.modal.show {
-    animation: modal-backdrop 0.3s ease-out forwards;
 }
