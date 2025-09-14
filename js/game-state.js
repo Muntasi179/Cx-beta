@@ -54,7 +54,12 @@ const GameState = {
             { username: "TapMaster", points: 9200, level: 21, avatar: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" },
             { username: "User", points: 0, level: 1, avatar: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" }
         ],
-        completedTasks: []
+        completedTasks: [],
+        // New properties for enhanced features
+        comboCount: 0,
+        maxCombo: 0,
+        comboTimeout: 2000, // 2 seconds between taps to maintain combo
+        criticalHits: 0
     },
 
     // Initialize game state
