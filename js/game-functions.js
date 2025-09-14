@@ -79,5 +79,13 @@ const GameFunctions = {
                 }
             }
         }, 100);
+        
+        // Combo timeout check
+        setInterval(() => {
+            const now = Date.now();
+            if (now - GameState.data.lastTapTime > GameState.data.comboTimeout && GameState.data.comboCount > 0) {
+                GameState.data.comboCount = 0;
+            }
+        }, 1000);
     }
 };
