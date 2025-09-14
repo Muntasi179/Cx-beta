@@ -5,6 +5,13 @@ const UI = {
         this.updateAllDisplays();
         this.setupEventListeners();
         this.checkAchievements();
+        
+        // Initialize combo system
+        GameState.data.comboCount = 0;
+        GameState.data.lastTapTime = 0;
+        GameState.data.comboTimeout = 2000; // 2 seconds between taps to maintain combo
+        GameState.data.criticalHits = 0;
+        GameState.data.maxCombo = 0;
     },
     
     // Check and unlock achievements
@@ -25,6 +32,18 @@ const UI = {
         if (GameState.data.level >= 5 && !GameState.data.achievements.find(a => a.id === 'level_five')) {
             GameState.unlockAchievement('level_five', 'Level 5', 'Reach level 5', 500);
             this.showToast('Achievement Unlocked: Level 5! +500 CX', 'success');
+        }
+        
+        // Combo achievements
+        if (GameState.data.maxCombo >= 10 && !GameState.data.achievements.find(a => a.id === 'combo_10')) {
+            GameState.unlockAchievement('combo_10', 'Combo Master', 'Reach a 10x combo', 300);
+            this.showToast('Achievement Unlocked: Combo Master! +300 CX', 'success');
+        }
+        
+        // Critical hit achievement
+        if (GameState.data.criticalHits >= 5 && !GameState.data.achievements.find(a => a.id === 'critical_master')) {
+            GameState.unlockAchievement('critical_master', 'Critical Master', 'Get 5 critical hits', 400);
+            this.showToast('Achievement Unlocked: Critical Master! +400 CX', 'success');
         }
         
         // Update displays if any achievements were unlocked
@@ -160,7 +179,7 @@ const UI = {
                 </div>
             `;
             
-            notificationItem.addEventListener('click', () => {
+            notificationItem.addEventListener('click', () {
                 notification.read = true;
                 notificationItem.classList.remove('unread');
                 this.updateNotificationBadge();
@@ -201,13 +220,28 @@ const UI = {
         }
     },
     
-    // Show toast notification
+    // Show toast notification (fixed duplicate issue)
     showToast(message, type = 'info', title = null) {
         const toastContainer = document.getElementById('toastContainer');
+        
+        // Check for duplicate messages in the last 3 seconds
+        const existingToasts = toastContainer.querySelectorAll('.toast');
+        const now = Date.now();
+        
+        for (const toast of existingToasts) {
+            const toastMessage = toast.querySelector('.toast-message').textContent;
+            const toastTime = parseInt(toast.getAttribute('data-time'));
+            
+            if (toastMessage === message && (now - toastTime) < 3000) {
+                // Duplicate message within time threshold, don't show again
+                return;
+            }
+        }
         
         // Create toast element
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
+        toast.setAttribute('data-time', now);
         
         // Set icon based on type
         let iconClass = 'fas fa-info-circle';
@@ -268,7 +302,9 @@ const UI = {
     // Setup event listeners
     setupEventListeners() {
         // Mining object click
-        document.getElementById('miningObject').addEventListener('click', this.handleMiningClick);
+        document.getElementById('miningObject').addEventListener('click', (e) => {
+            this.handleMiningClick(e);
+        });
         
         // Modal buttons
         document.getElementById('walletBtn').addEventListener('click', () => {
@@ -298,7 +334,7 @@ const UI = {
             document.getElementById('shopModal').classList.add('show');
         });
         
-        document.getElementById('tasksBtn').addEventListener('click', () => {
+        document.getElementById('tasksBtn').addEventListener('click', () {
             document.getElementById('tasksModal').classList.add('show');
         });
         
@@ -346,10 +382,24 @@ const UI = {
     
     // Handle mining click
     handleMiningClick(e) {
+        // Check if any modal is open
+        const modals = document.querySelectorAll('.modal');
+        const isModalOpen = Array.from(modals).some(modal => modal.classList.contains('show'));
+        if (isModalOpen) return;
+        
         const now = Date.now();
         if (now - GameState.data.lastTapTime < GameState.data.tapCooldown) {
             return;
         }
+        
+        // Check for combo
+        if (now - GameState.data.lastTapTime < GameState.data.comboTimeout) {
+            GameState.data.comboCount++;
+            GameState.data.maxCombo = Math.max(GameState.data.maxCombo, GameState.data.comboCount);
+        } else {
+            GameState.data.comboCount = 1;
+        }
+        
         GameState.data.lastTapTime = now;
         
         if (GameState.data.energy < 1) {
@@ -374,8 +424,22 @@ const UI = {
         GameState.data.energy = Math.max(0, GameState.data.energy - 1);
         UI.updateEnergyDisplay();
         
-        // Calculate points earned
+        // Calculate points earned with combo
         let pointsEarned = GameState.data.multitap;
+        
+        // Apply combo multiplier (capped at 5x)
+        const comboMultiplier = Math.min(5, 1 + (GameState.data.comboCount * 0.1));
+        pointsEarned = Math.floor(pointsEarned * comboMultiplier);
+        
+        // Check for critical hit (5% chance)
+        let isCritical = false;
+        if (Math.random() < 0.05) {
+            isCritical = true;
+            pointsEarned *= 2;
+            GameState.data.criticalHits = (GameState.data.criticalHits || 0) + 1;
+            Effects.showCriticalHit(e.clientX, e.clientY);
+        }
+        
         if (GameState.data.multiplierActive) {
             pointsEarned *= 2;
         }
@@ -397,8 +461,15 @@ const UI = {
         UI.updatePointsDisplay();
         UI.updateTotalTapsDisplay();
         
-        // Show earning text
-        Effects.createFloatingText(e.clientX, e.clientY, `+${pointsEarned} CX`, "success");
+        // Show combo if applicable
+        if (GameState.data.comboCount > 3) {
+            Effects.showCombo(GameState.data.comboCount, e.clientX, e.clientY);
+        }
+        
+        // Show earning text only for multitap > 1 or critical hits
+        if (pointsEarned > GameState.data.multitap || isCritical) {
+            Effects.createFloatingText(e.clientX, e.clientY, `+${pointsEarned} CX`, isCritical ? "critical" : "success");
+        }
         
         // Check for achievements
         this.checkAchievements();
