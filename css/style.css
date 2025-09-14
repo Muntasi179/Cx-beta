@@ -1535,3 +1535,53 @@ input:checked + .toggle-slider:before {
 .floating-text {
     z-index: 1001;
 }
+
+/* Combo display */
+.combo-display {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--gradient-secondary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 1.5rem;
+    z-index: 10002;
+    display: none;
+    box-shadow: 0 0 20px rgba(140, 82, 255, 0.7);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Critical hit display */
+.critical-hit {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--gradient-secondary);
+    color: #ff0000;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 2rem;
+    z-index: 10003;
+    display: none;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    animation: criticalPulse 0.5s infinite alternate;
+}
+
+@keyframes criticalPulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* New floating text type for critical hits */
+.floating-text-critical {
+    color: #ff0000;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
