@@ -1,996 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="telegram-web-app-app-id" content="-48192244">
     <title>CloneX</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(90deg, cyan, magenta);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 200, 0, 0.9);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: cyan;
-        }
-        
-        .balance-container {
-            text-align: center;
-            margin: 25px 0;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-        }
-        
-        .balance-label {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        
-        .balance {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #ff00ff;
-            text-shadow: 0 0 10px rgba(255, 0, 255, 0.7);
-        }
-        
-        .tap-area {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-        }
-        
-        .tap-button {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6e45e2, #88d3ce);
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(110, 69, 226, 0.7);
-            transition: transform 0.1s, box-shadow 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-        
-        .tap-button:active {
-            transform: scale(0.95);
-            box-shadow: 0 0 30px rgba(110, 69, 226, 1);
-        }
-        
-        .energy-bar {
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .energy-fill {
-            height: 100%;
-            width: 47%;
-            background: linear-gradient(90deg, #ff0080, #ff8c00);
-            border-radius: 10px;
-            transition: width 0.5s;
-        }
-        
-        .menu {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 30px;
-        }
-        
-        .menu-button {
-            padding: 12px 5px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-            text-align: center;
-        }
-        
-        .menu-button:hover {
-            background: rgba(0, 255, 255, 0.2);
-        }
-        
-        .menu-button i {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        
-        .modal.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .modal-content {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            width: 90%;
-            max-width: 500px;
-            border-radius: 15px;
-            padding: 20px;
-            position: relative;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            margin: 10px 0;
-            border-radius: 10px;
-        }
-        
-        .purchase-button {
-            padding: 8px 15px;
-            background: linear-gradient(90deg, #ff0080, #ff8c00);
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-        }
-        
-        .floating-text {
-            position: absolute;
-            color: cyan;
-            font-weight: bold;
-            pointer-events: none;
-            user-select: none;
-            z-index: 100;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-            animation: floatUp 1s forwards;
-        }
-        
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-        }
-        
-        .achievement {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }
-        
-        .achievement-icon {
-            font-size: 2rem;
-            margin-right: 15px;
-            color: gold;
-        }
-        
-        .upgrade {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            margin: 10px 0;
-            border-radius: 10px;
-        }
-        
-        .task {
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            margin: 10px 0;
-            border-radius: 10px;
-        }
-        
-        .progress-bar {
-            height: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            width: 30%;
-            background: linear-gradient(90deg, #00c9ff, #92fe9d);
-            border-radius: 5px;
-        }
-        
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
-        }
-        
-        @keyframes particle-anim {
-            0% {
-                opacity: 1;
-                transform: translate(0, 0);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(var(--tx), var(--ty));
-            }
-        }
-        
-        /* Combo display */
-        .combo-display {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #8C52FF, #FF36AB);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: 800;
-            font-size: 1.5rem;
-            z-index: 10002;
-            display: none;
-            box-shadow: 0 0 20px rgba(140, 82, 255, 0.7);
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* Critical hit display */
-        .critical-hit {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #8C52FF, #FF36AB);
-            color: #ff0000;
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-weight: 900;
-            font-size: 2rem;
-            z-index: 10003;
-            display: none;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-            animation: criticalPulse 0.5s infinite alternate;
-        }
-        
-        @keyframes criticalPulse {
-            from { transform: translate(-50%, -50%) scale(1); }
-            to { transform: translate(-50%, -50%) scale(1.1); }
-        }
-        
-        /* New floating text type for critical hits */
-        .floating-text-critical {
-            color: #ff0000;
-            font-size: 1.5rem;
-            font-weight: 900;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk@1.2.1/dist/tonconnect-sdk.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>CloneX!</h1>
-        </header>
-        
-        <div class="stats">
-            <div class="stat-box">
-                <div>Multitap</div>
-                <div class="stat-value" id="multitapValue">1</div>
-            </div>
-            <div class="stat-box">
-                <div>Regen</div>
-                <div class="stat-value" id="regenValue">0.7/s</div>
-            </div>
-            <div class="stat-box">
-                <div>Total Taps</div>
-                <div class="stat-value" id="totalTapsValue">155</div>
-            </div>
-            <div class="stat-box">
-                <div>Level</div>
-                <div class="stat-value" id="levelValue">5</div>
-            </div>
-        </div>
-        
-        <div class="balance-container">
-            <div class="balance-label">Your Balance</div>
-            <div class="balance" id="balanceValue">C:\ 365</div>
-        </div>
-        
-        <div class="tap-area" id="tapArea">
-            <button class="tap-button" id="tapButton">XO</button>
-            <div class="energy-bar">
-                <div class="energy-fill" id="energyFill"></div>
-            </div>
-            <div>Energy <span id="energyText">47 / 100</span></div>
-        </div>
-        
-        <div class="menu">
-            <div class="menu-button" id="boostsButton">
-                <i class="fas fa-bolt"></i>
-                <div>Boosts</div>
-            </div>
-            <div class="menu-button" id="shopButton">
-                <i class="fas fa-shopping-cart"></i>
-                <div>Shop</div>
-            </div>
-            <div class="menu-button" id="tasksButton">
-                <i class="fas fa-tasks"></i>
-                <div>Tasks</div>
-            </div>
-            <div class="menu-button" id="rankButton">
-                <i class="fas fa-trophy"></i>
-                <div>Rank</div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="notification" id="notification">
-        Settings saved successfully!
-    </div>
-    
-    <!-- Combo display -->
-    <div class="combo-display" id="comboDisplay">
-        <span id="comboCount">0</span>x Combo!
+    <div class="bg-effects">
+        <div class="bg-circle circle-1"></div>
+        <div class="bg-circle circle-2"></div>
+        <div class="bg-circle circle-3"></div>
     </div>
 
-    <!-- Critical hit display -->
-    <div class="critical-hit" id="criticalHit">
-        CRITICAL HIT!
+    <div class="toast-container" id="toastContainer">
+        <div class="toast" id="toast">
+            <div class="toast-icon"><i class="fas fa-info-circle"></i></div>
+            <div class="toast-content">
+                <div class="toast-title">Information</div>
+                <div class="toast-message">This is a notification message</div>
+            </div>
+            <button class="toast-close">&times;</button>
+        </div>
     </div>
-    
-    <!-- Shop Modal -->
-    <div class="modal" id="shopModal">
+
+    <!-- Modals -->
+    <div class="modal" id="walletModal">
         <div class="modal-content">
-            <button class="close-modal" id="closeShopModal">&times;</button>
-            <h2>Shop</h2>
-            <div class="shop-item">
-                <div>
-                    <h3>Multi-Tap Upgrade</h3>
-                    <p>Increases taps per click</p>
-                </div>
-                <button class="purchase-button" onclick="buyUpgrade('multitap')">50 CX</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Connect Wallet</h2>
+                <button class="modal-close">&times;</button>
             </div>
-            <div class="shop-item">
-                <div>
-                    <h3>Energy Capacity</h3>
-                    <p>Increases max energy</p>
+            <div class="modal-body">
+                <div class="wallet-options">
+                    <div class="wallet-option" id="tonKeeperOption">
+                        <div class="wallet-option-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="wallet-option-content">
+                            <div class="wallet-option-title">Tonkeeper</div>
+                            <div class="wallet-option-desc">Connect using Tonkeeper wallet</div>
+                        </div>
+                        <div class="wallet-option-action" id="connectTonKeeper">Connect</div>
+                    </div>
+                    <div class="wallet-option" id="tonHubOption">
+                        <div class="wallet-option-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="wallet-option-content">
+                            <div class="wallet-option-title">TonHub</div>
+                            <div class="wallet-option-desc">Connect using TonHub wallet</div>
+                        </div>
+                        <div class="wallet-option-action" id="connectTonHub">Connect</div>
+                    </div>
+                    <div class="wallet-option" id="telegramWalletOption">
+                        <div class="wallet-option-icon"><i class="fab fa-telegram"></i></div>
+                        <div class="wallet-option-content">
+                            <div class="wallet-option-title">Telegram Wallet</div>
+                            <div class="wallet-option-desc">Connect using Telegram built-in wallet</div>
+                        </div>
+                        <div class="wallet-option-action" id="connectTelegramWallet">Connect</div>
+                    </div>
                 </div>
-                <button class="purchase-button" onclick="buyUpgrade('energy')">75 CX</button>
+                <div id="walletConnectionStatus" style="margin-top: 20px; padding: 15px; background: var(--bg-tertiary); border-radius: var(--radius-md); display: none;">
+                    <h4 style="margin-bottom: 10px;">Connection Status</h4>
+                    <div id="walletStatusText">Connecting...</div>
+                    <div class="spinner" style="margin: 10px auto;"></div>
+                </div>
             </div>
-            <div class="shop-item">
-                <div>
-                    <h3>Auto-Tapper</h3>
-                    <p>Automatically taps for you</p>
-                </div>
-                <button class="purchase-button" onclick="buyUpgrade('autotap')">150 CX</button>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeWalletModal">Cancel</button>
+                <button class="btn" id="disconnectWallet" style="display: none;">Disconnect</button>
             </div>
         </div>
     </div>
-    
-    <!-- Boosts Modal -->
+
     <div class="modal" id="boostsModal">
         <div class="modal-content">
-            <button class="close-modal" id="closeBoostsModal">&times;</button>
-            <h2>Boosts</h2>
-            <div class="upgrade">
-                <div>
-                    <h3>2x Earnings</h3>
-                    <p>30 minutes</p>
-                </div>
-                <button class="purchase-button" onclick="activateBoost('earnings')">20 CX</button>
+            <div class="modal-header">
+                <h2 class="modal-title">Boosts</h2>
+                <button class="modal-close">&times;</button>
             </div>
-            <div class="upgrade">
-                <div>
-                    <h3>Unlimited Energy</h3>
-                    <p>15 minutes</p>
-                </div>
-                <button class="purchase-button" onclick="activateBoost('energy')">35 CX</button>
-            </div>
-            <div class="upgrade">
-                <div>
-                    <h3>Turbo Mode</h3>
-                    <p>10 minutes</p>
-                </div>
-                <button class="purchase-button" onclick="activateBoost('turbo')">25 CX</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tasks Modal -->
-    <div class="modal" id="tasksModal">
-        <div class="modal-content">
-            <button class="close-modal" id="closeTasksModal">&times;</button>
-            <h2>Tasks</h2>
-            <div class="task">
-                <h3>Tap 200 Times</h3>
-                <p>Reward: 50 CX</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="task1Progress"></div>
-                </div>
-            </div>
-            <div class="task">
-                <h3>Reach Level 10</h3>
-                <p>Reward: 100 CX</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="task2Progress"></div>
+            <div class="modal-body">
+                <div class="boost-items">
+                    <div class="boost-item" data-id="energyRegen" data-price="500" data-currency="cx">
+                        <div class="boost-item-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="boost-item-content">
+                            <div class="boost-item-title">Energy Regen Boost</div>
+                            <div class="boost-item-desc">Increase energy regeneration by 0.2/s</div>
+                        </div>
+                        <div class="boost-item-action">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 500 CX</span>
+                        </div>
+                    </div>
+                    <div class="boost-item" data-id="multitap" data-price="1000" data-currency="cx">
+                        <div class="boost-item-icon"><i class="fas fa-hand-point-up"></i></div>
+                        <div class="boost-item-content">
+                            <div class="boost-item-title">Multitap Upgrade</div>
+                            <div class="boost-item-desc">Get +1 tap per click</div>
+                        </div>
+                        <div class="boost-item-action">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 1000 CX</span>
+                        </div>
+                    </div>
+                    <div class="boost-item" data-id="maxEnergy" data-price="1500" data-currency="cx">
+                        <div class="boost-item-icon"><i class="fas fa-battery-full"></i></div>
+                        <div class="boost-item-content">
+                            <div class="boost-item-title">Max Energy Increase</div>
+                            <div class="boost-item-desc">Increase your maximum energy by 20</div>
+                        </div>
+                        <div class="boost-item-action">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 1500 CX</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="task">
-                <h3>Buy 3 Upgrades</h3>
-                <p>Reward: 75 CX</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="task3Progress"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Rank Modal -->
-    <div class="modal" id="rankModal">
-        <div class="modal-content">
-            <button class="close-modal" id="closeRankModal">&times;</button>
-            <h2>Your Rank</h2>
-            <div class="achievement">
-                <div class="achievement-icon">
-                    <i class="fas fa-medal"></i>
-                </div>
-                <div>
-                    <h3>Novice Tapper</h3>
-                    <p>Reach 100 total taps</p>
-                </div>
-            </div>
-            <div class="achievement">
-                <div class="achievement-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <div>
-                    <h3>Energy Master</h3>
-                    <p>Fully upgrade energy capacity</p>
-                </div>
-            </div>
-            <div class="achievement">
-                <div class="achievement-icon">
-                    <i class="fas fa-crown"></i>
-                </div>
-                <div>
-                    <h3>CX Millionaire</h3>
-                    <p>Save 1,000,000 CX points</p>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeBoostsModal">Cancel</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Game state
-        const gameState = {
-            balance: 365,
-            energy: 47,
-            maxEnergy: 100,
-            regenRate: 0.7,
-            totalTaps: 155,
-            multitap: 1,
-            level: 5,
-            upgrades: {
-                multitap: 1,
-                energy: 0,
-                autotap: 0
-            },
-            activeBoosts: {
-                earnings: false,
-                energy: false,
-                turbo: false
-            },
-            tasks: {
-                tap200: 155,
-                level10: 5,
-                buy3: 0
-            },
-            // New properties for enhanced features
-            comboCount: 0,
-            maxCombo: 0,
-            comboTimeout: 2000, // 2 seconds between taps to maintain combo
-            criticalHits: 0
-        };
-        
-        // DOM elements
-        const tapButton = document.getElementById('tapButton');
-        const tapArea = document.getElementById('tapArea');
-        const energyFill = document.getElementById('energyFill');
-        const energyText = document.getElementById('energyText');
-        const balanceElement = document.getElementById('balanceValue');
-        const totalTapsElement = document.getElementById('totalTapsValue');
-        const multitapValue = document.getElementById('multitapValue');
-        const regenValue = document.getElementById('regenValue');
-        const levelValue = document.getElementById('levelValue');
-        const notification = document.getElementById('notification');
-        
-        // Modal elements
-        const shopModal = document.getElementById('shopModal');
-        const boostsModal = document.getElementById('boostsModal');
-        const tasksModal = document.getElementById('tasksModal');
-        const rankModal = document.getElementById('rankModal');
-        
-        // Update display
-        function updateDisplay() {
-            balanceElement.textContent = `C:\\ ${gameState.balance}`;
-            energyFill.style.width = `${(gameState.energy / gameState.maxEnergy) * 100}%`;
-            energyText.textContent = `${Math.floor(gameState.energy)} / ${gameState.maxEnergy}`;
-            totalTapsElement.textContent = gameState.totalTaps;
-            multitapValue.textContent = gameState.multitap;
-            regenValue.textContent = `${gameState.regenRate}/s`;
-            levelValue.textContent = gameState.level;
-            
-            // Update task progress
-            document.getElementById('task1Progress').style.width = `${Math.min(100, (gameState.tasks.tap200 / 200) * 100)}%`;
-            document.getElementById('task2Progress').style.width = `${Math.min(100, (gameState.tasks.level10 / 10) * 100)}%`;
-            document.getElementById('task3Progress').style.width = `${Math.min(100, (gameState.tasks.buy3 / 3) * 100)}%`;
-        }
-        
-        // Show notification
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 2000);
-        }
-        
-        // Show floating text
-        function showFloatingText(text, x, y) {
-            // Check if any modal is open
-            const modals = document.querySelectorAll('.modal');
-            const isModalOpen = Array.from(modals).some(modal => modal.classList.contains('show'));
-            if (isModalOpen) return;
-            
-            const floatingText = document.createElement('div');
-            floatingText.className = 'floating-text';
-            floatingText.textContent = text;
-            floatingText.style.left = `${x}px`;
-            floatingText.style.top = `${y}px`;
-            
-            document.body.appendChild(floatingText);
-            
-            setTimeout(() => {
-                document.body.removeChild(floatingText);
-            }, 1000);
-        }
-        
-        // Create particles
-        function createParticles(x, y) {
-            for (let i = 0; i < 10; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                const size = Math.random() * 5 + 2;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                const colorVal = Math.random() > 0.5 ? '#ff00ff' : '#00ffff';
-                particle.style.background = colorVal;
-                
-                const tx = (Math.random() - 0.5) * 100;
-                const ty = (Math.random() - 0.5) * 100;
-                
-                particle.style.setProperty('--tx', `${tx}px`);
-                particle.style.setProperty('--ty', `${ty}px`);
-                
-                particle.style.left = `${x}px`;
-                particle.style.top = `${y}px`;
-                
-                document.body.appendChild(particle);
-                
-                // Start animation
-                setTimeout(() => {
-                    particle.style.animation = `particle-anim 1s forwards`;
-                }, 10);
-                
-                // Remove after animation
-                setTimeout(() => {
-                    if (particle.parentNode) {
-                        document.body.removeChild(particle);
-                    }
-                }, 1100);
-            }
-        }
-        
-        // Show combo effect
-        function showCombo(count, x, y) {
-            const comboDisplay = document.getElementById('comboDisplay');
-            const comboCount = document.getElementById('comboCount');
-            
-            comboCount.textContent = count;
-            comboDisplay.style.display = 'block';
-            comboDisplay.style.left = `${x}px`;
-            comboDisplay.style.top = `${y}px`;
-            
-            // Animate
-            setTimeout(() => {
-                comboDisplay.style.transform = 'translate(-50%, -50%) scale(1.2)';
-            }, 10);
-            
-            // Hide after 1 second
-            setTimeout(() => {
-                comboDisplay.style.transform = 'translate(-50%, -50%) scale(1)';
-                setTimeout(() => {
-                    comboDisplay.style.display = 'none';
-                }, 500);
-            }, 1000);
-        }
-        
-        // Show critical hit effect
-        function showCriticalHit(x, y) {
-            const criticalHit = document.getElementById('criticalHit');
-            
-            criticalHit.style.display = 'block';
-            criticalHit.style.left = `${x}px`;
-            criticalHit.style.top = `${y}px`;
-            
-            // Create explosion particles
-            createParticles(x, y, 20);
-            
-            // Animate
-            setTimeout(() => {
-                criticalHit.style.transform = 'translate(-50%, -50%) scale(1.5)';
-                criticalHit.style.opacity = '1';
-            }, 10);
-            
-            // Hide after 1.5 seconds
-            setTimeout(() => {
-                criticalHit.style.transform = 'translate(-50%, -50%) scale(1)';
-                criticalHit.style.opacity = '0';
-                setTimeout(() => {
-                    criticalHit.style.display = 'none';
-                }, 500);
-            }, 1500);
-        }
-        
-        // Handle tap
-        function handleTap() {
-            // Check if any modal is open
-            const modals = document.querySelectorAll('.modal');
-            const isModalOpen = Array.from(modals).some(modal => modal.classList.contains('show'));
-            if (isModalOpen) return;
-            
-            if (gameState.energy >= 1) {
-                gameState.energy -= 1;
-                
-                // Check for combo
-                const now = Date.now();
-                if (now - (gameState.lastTapTime || 0) < gameState.comboTimeout) {
-                    gameState.comboCount++;
-                    gameState.maxCombo = Math.max(gameState.maxCombo, gameState.comboCount);
-                } else {
-                    gameState.comboCount = 1;
-                }
-                gameState.lastTapTime = now;
-                
-                // Calculate earnings (with potential boost)
-                let earnings = gameState.multitap;
-                
-                // Apply combo multiplier (capped at 5x)
-                const comboMultiplier = Math.min(5, 1 + (gameState.comboCount * 0.1));
-                earnings = Math.floor(earnings * comboMultiplier);
-                
-                // Check for critical hit (5% chance)
-                let isCritical = false;
-                if (Math.random() < 0.05) {
-                    isCritical = true;
-                    earnings *= 2;
-                    gameState.criticalHits = (gameState.criticalHits || 0) + 1;
+    <div class="modal" id="shopModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Premium Shop</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shop-items">
+                    <div class="shop-item" data-id="energyPack" data-price="200" data-currency="cx">
+                        <div class="shop-item-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="shop-item-title">Energy Pack</div>
+                        <div class="shop-item-desc">Instantly refill your energy</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 200 CX</span>
+                        </div>
+                    </div>
+                    <div class="shop-item" data-id="starterPack" data-price="1500" data-currency="cx">
+                        <div class="shop-item-icon"><i class="fas fa-gem"></i></div>
+                        <div class="shop-item-title">Starter Pack</div>
+                        <div class="shop-item-desc">2000 CX + Energy Refill</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 1500 CX</span>
+                        </div>
+                    </div>
+                    <div class="shop-item" data-id="premiumPack" data-price="3000" data-currency="cx">
+                        <div class="shop-item-icon"><i class="fas fa-crown"></i></div>
+                        <div class="shop-item-title">Premium Pack</div>
+                        <div class="shop-item-desc">Permanent +2 Tap & 5000 CX</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 3000 CX</span>
+                        </div>
+                    </div>
+                    <div class="shop-item" data-id="superEnergy" data-price="800" data-currency="cx">
+                        <div class="shop-item-icon"><i class="fas fa-battery-full"></i></div>
+                        <div class="shop-item-title">Super Energy</div>
+                        <div class="shop-item-desc">+50 Max Energy permanently</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge cx-badge"><i class="fas fa-coins"></i> 800 CX</span>
+                        </div>
+                    </div>
                     
-                    const rect = tapButton.getBoundingClientRect();
-                    const x = rect.left + rect.width / 2;
-                    const y = rect.top + rect.height / 2;
-                    showCriticalHit(x, y);
-                }
-                
-                if (gameState.activeBoosts.earnings) {
-                    earnings *= 2;
-                }
-                
-                gameState.balance += earnings;
-                gameState.totalTaps += gameState.multitap;
-                gameState.tasks.tap200 += gameState.multitap;
-                
-                updateDisplay();
-                
-                // Create particles
-                const rect = tapButton.getBoundingClientRect();
-                const x = rect.left + rect.width / 2;
-                const y = rect.top + rect.height / 2;
-                createParticles(x, y);
-                
-                // Show combo if applicable
-                if (gameState.comboCount > 3) {
-                    showCombo(gameState.comboCount, x, y);
-                }
-                
-                // Show floating text only for multitap > 1 or critical hits
-                if (earnings > gameState.multitap || isCritical) {
-                    showFloatingText(`+${earnings}`, x, y);
-                }
-                
-                // Check for level up
-                if (gameState.totalTaps >= gameState.level * 50) {
-                    gameState.level++;
-                    showNotification(`Level Up! You're now level ${gameState.level}`);
-                    gameState.tasks.level10 = gameState.level;
-                    updateDisplay();
-                }
-            }
-        }
-        
-        // Energy regeneration
-        setInterval(() => {
-            if (gameState.energy < gameState.maxEnergy) {
-                let regen = gameState.regenRate;
-                if (gameState.activeBoosts.energy) {
-                    regen *= 2;
-                }
-                gameState.energy = Math.min(gameState.maxEnergy, gameState.energy + regen);
-                updateDisplay();
-            }
-        }, 1000);
-        
-        // Auto-tapper functionality
-        setInterval(() => {
-            if (gameState.upgrades.autotap > 0 && gameState.energy >= 1) {
-                handleTap();
-            }
-        }, 1000);
-        
-        // Buy upgrade
-        function buyUpgrade(type) {
-            let cost = 0;
-            
-            switch(type) {
-                case 'multitap':
-                    cost = 50 * (gameState.upgrades.multitap + 1);
-                    if (gameState.balance >= cost) {
-                        gameState.balance -= cost;
-                        gameState.upgrades.multitap++;
-                        gameState.multitap = gameState.upgrades.multitap;
-                        showNotification('Multi-Tap upgraded!');
-                        gameState.tasks.buy3++;
-                    } else {
-                        showNotification('Not enough CX!');
-                        return;
-                    }
-                    break;
+                    <!-- Premium items for TON -->
+                    <div class="shop-item premium-item" data-id="premiumBoost" data-price="5" data-currency="ton">
+                        <div class="shop-item-icon"><i class="fas fa-crown"></i></div>
+                        <div class="shop-item-title">Premium Boost</div>
+                        <div class="shop-item-desc">Permanent +5 Tap & 10000 CX</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge ton-badge"><i class="fab fa-ton"></i> 5 TON</span>
+                        </div>
+                    </div>
                     
-                case 'energy':
-                    cost = 75 * (gameState.upgrades.energy + 1);
-                    if (gameState.balance >= cost) {
-                        gameState.balance -= cost;
-                        gameState.upgrades.energy++;
-                        gameState.maxEnergy += 25;
-                        showNotification('Energy capacity increased!');
-                        gameState.tasks.buy3++;
-                    } else {
-                        showNotification('Not enough CX!');
-                        return;
-                    }
-                    break;
+                    <div class="shop-item premium-item" data-id="ultimateEnergy" data-price="10" data-currency="ton">
+                        <div class="shop-item-icon"><i class="fas fa-infinity"></i></div>
+                        <div class="shop-item-title">Ultimate Energy</div>
+                        <div class="shop-item-desc">+100 Max Energy & 2x Regen</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge ton-badge"><i class="fab fa-ton"></i> 10 TON</span>
+                        </div>
+                    </div>
                     
-                case 'autotap':
-                    cost = 150 * (gameState.upgrades.autotap + 1);
-                    if (gameState.balance >= cost) {
-                        gameState.balance -= cost;
-                        gameState.upgrades.autotap++;
-                        showNotification('Auto-Tapper upgraded!');
-                        gameState.tasks.buy3++;
-                    } else {
-                        showNotification('Not enough CX!');
-                        return;
-                    }
-                    break;
-            }
-            
-            updateDisplay();
-        }
-        
-        // Activate boost
-        function activateBoost(type) {
-            let cost = 0;
-            
-            switch(type) {
-                case 'earnings':
-                    cost = 20;
-                    break;
-                case 'energy':
-                    cost = 35;
-                    break;
-                case 'turbo':
-                    cost = 25;
-                    break;
-            }
-            
-            if (gameState.balance >= cost && !gameState.activeBoosts[type]) {
-                gameState.balance -= cost;
-                gameState.activeBoosts[type] = true;
+                    <div class="shop-item" data-id="starMultiplier" data-price="25" data-currency="stars">
+                        <div class="shop-item-icon"><i class="fas fa-times-circle"></i></div>
+                        <div class="shop-item-title">Star Multiplier</div>
+                        <div class="shop-item-desc">Permanent 1.5x Points Multiplier</div>
+                        <div class="shop-item-price">
+                            <span class="currency-badge star-badge"><i class="fas fa-star"></i> 25 Stars</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeShopModal">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="tasksModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Daily Tasks</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Enhanced Daily Streak at the top -->
+                <div class="streak-container">
+                    <div class="streak-header">
+                        <div class="streak-title">Daily Login Streak</div>
+                        <div class="streak-days" id="streakDays">0 days</div>
+                    </div>
+                    <div class="streak-count" id="streakCount">+0 CX Today</div>
+                    <div class="streak-progress">
+                        <div class="streak-progress-bar" id="streakProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="streak-reward" id="streakReward">Next reward: 50 CX</div>
+                    <button class="btn" id="claimStreakBtn">Claim Daily Reward</button>
+                    
+                    <div class="streak-calendar">
+                        <div class="streak-day" id="day0">S</div>
+                        <div class="streak-day" id="day1">M</div>
+                        <div class="streak-day" id="day2">T</div>
+                        <div class="streak-day" id="day3">W</div>
+                        <div class="streak-day" id="day4">T</div>
+                        <div class="streak-day" id="day5">F</div>
+                        <div class="streak-day" id="day6">S</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 20px 0 15px; color: var(--primary);">Social Tasks</h3>
                 
-                showNotification(`Boost activated: ${type}`);
+                <div class="social-task">
+                    <div class="social-icon telegram-icon">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">Join Telegram Channel</div>
+                        <div class="social-desc">Follow our official Telegram channel</div>
+                    </div>
+                    <div class="social-action" data-url="https://t.me/CloneX_Updates" data-reward="100">
+                        +100 CX
+                    </div>
+                </div>
                 
-                // Set timeout to deactivate boost
-                setTimeout(() => {
-                    gameState.activeBoosts[type] = false;
-                    showNotification(`Boost deactivated: ${type}`);
-                }, type === 'energy' ? 900000 : 1800000); // 15 or 30 minutes
+                <div class="social-task">
+                    <div class="social-icon twitter-icon">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">Follow on Twitter</div>
+                        <div class="social-desc">Follow our official Twitter account</div>
+                    </div>
+                    <div class="social-action" data-url="https://x.com/clonex_updates" data-reward="150">
+                        +150 CX
+                    </div>
+                </div>
                 
-                updateDisplay();
-            } else if (gameState.activeBoosts[type]) {
-                showNotification('Boost already active!');
-            } else {
-                showNotification('Not enough CX!');
-            }
-        }
+                <div class="social-task">
+                    <div class="social-icon youtube-icon" style="background: #FF0000;">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">Subscribe on YouTube</div>
+                        <div class="social-desc">Subscribe to our YouTube channel</div>
+                    </div>
+                    <div class="social-action" data-url="https://youtube.com/clonex" data-reward="200">
+                        +200 CX
+                    </div>
+                </div>
+                
+                <h3 style="margin: 20px 0 15px; color: var(--primary);">Daily Tasks</h3>
+                <div class="task-items">
+                    <div class="task-item">
+                        <div class="task-item-check"></div>
+                        <div class="task-item-content">
+                            <div class="task-item-title">Mine 100 times</div>
+                            <div class="task-item-desc">Tap the mining core 100 times</div>
+                        </div>
+                        <div class="task-item-action task-action" data-id="mine_100" data-reward="50">Claim</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-item-check"></div>
+                        <div class="task-item-content">
+                            <div class="task-item-title">Reach 1000 CX</div>
+                            <div class="task-item-desc">Accumulate 1000 CX in your balance</div>
+                        </div>
+                        <div class="task-item-action task-action" data-id="reach_1000" data-reward="100">Claim</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-item-check"></div>
+                        <div class="task-item-content">
+                            <div class="task-item-title">Invite a Friend</div>
+                            <div class="task-item-desc">Share your referral link</div>
+                        </div>
+                        <div class="task-item-action task-action" data-id="invite_friend" data-reward="200">Claim</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-item-check completed"></div>
+                        <div class="task-item-content">
+                            <div class="task-item-title">Connect Wallet</div>
+                            <div class="task-item-desc">Connect your TON wallet</div>
+                        </div>
+                        <div class="task-item-action task-action completed" data-id="connect_wallet" data-reward="50">Claimed</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeTasksModal">Close</button>
+                <button class="btn" id="claimAllTasks">Claim All</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="leaderboardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Leaderboard</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="leaderboard" id="leaderboardList">
+                    <!-- Leaderboard will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeLeaderboardModal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="notificationsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Notifications</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="notification-items" id="notificationsList">
+                    <!-- Notifications will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeNotificationsModal">Close</button>
+                <button class="btn" id="clearNotifications">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Your Profile</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img class="user-avatar" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile" style="width: 80px; height: 80px;">
+                    <h3 id="modalUsername">User</h3>
+                    <p>Level <span class="level-badge" id="modalLevel">1</span></p>
+                </div>
+                <div class="profile-grid">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="modalTotalTaps">0</div>
+                        <div class="profile-stat-label">Total Taps</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="modalEarned">0</div>
+                        <div class="profile-stat-label">Total Earned</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">Wallet Balances</h4>
+                    <div class="profile-grid">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" style="color: #0088cc;" id="modalTonBalance">0 TON</div>
+                            <div class="profile-stat-label">TON Balance</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" style="color: #FFD700;" id="modalStarBalance">0 Stars</div>
+                            <div class="profile-stat-label">Star Balance</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="referral-section">
+                    <h4 style="margin-bottom: 10px;">Referral Link</h4>
+                    <div class="referral-input">
+                        <input type="text" id="referralInput" value="https://t.me/CloneXBot?start=ref123" readonly>
+                        <button class="btn btn-sm" id="copyReferralBtn">Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeProfileModal">Close</button>
+                <button class="btn" id="shareProfileBtn">Share Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Settings</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-item">
+                    <div class="settings-label">Sound Effects</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="soundToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">Vibration</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="vibrationToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-label">Reduce Animations</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="reduceAnimationsToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px;">Language</h4>
+                    <select style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 10px; color: var(--text-primary);">
+                        <option>English</option>
+                        <option>Russian</option>
+                        <option>Spanish</option>
+                        <option>Chinese</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeSettingsModal">Cancel</button>
+                <button class="btn" id="saveSettingsBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app">
+        <div class="particle-effects" id="particleEffects"></div>
+        <div class="tap-effects" id="tapEffects"></div>
         
-        // Modal functionality
-        function setupModal(buttonElement, modalElement, closeButtonElement) {
-            buttonElement.addEventListener('click', () => {
-                modalElement.classList.add('show');
-            });
+        <div class="header">
+            <div class="user-profile" id="profileBtn">
+                <img class="user-avatar" id="profilePic" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile">
+                <div class="user-info">
+                    <div class="username" id="usernameDisplay">User</div>
+                    <div class="user-level">Level <span class="level-badge" id="levelBadge">1</span></div>
+                </div>
+            </div>
             
-            closeButtonElement.addEventListener('click', () => {
-                modalElement.classList.remove('show');
-            });
+            <div class="header-actions">
+                <div class="action-btn" id="walletBtn" title="Wallet">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="action-btn" id="notificationsBtn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge">3</div>
+                </div>
+                <div class="action-btn" id="settingsBtn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-hand-point-up"></i></div>
+                <div class="stat-value" id="multitapStat">1</div>
+                <div class="stat-label">Multitap</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                <div class="stat-value" id="energyRegenStat">0.5/s</div>
+                <div class="stat-label">Regen</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="stat-value" id="totalTapsStat">0</div>
+                <div class="stat-label">Total Taps</div>
+            </div>
+        </div>
+
+        <div class="balance-section">
+            <div class="balance-label">Your Balance</div>
+            <div class="balance-amount">
+                <img class="balance-coin" src="assets/images/cx-coin.png" alt="CX">
+                <span id="pointsBalance">0</span>
+            </div>
+        </div>
+
+        <main class="game-area">
+            <div id="multiplierBadge" class="multiplier-badge" style="display: none;">2x Active</div>
             
-            modalElement.addEventListener('click', (e) => {
-                if (e.target === modalElement) {
-                    modalElement.classList.remove('show');
-                }
-            });
-        }
-        
-        // Initialize modals
-        setupModal(
-            document.getElementById('boostsButton'),
-            boostsModal,
-            document.getElementById('closeBoostsModal')
-        );
-        
-        setupModal(
-            document.getElementById('shopButton'),
-            shopModal,
-            document.getElementById('closeShopModal')
-        );
-        
-        setupModal(
-            document.getElementById('tasksButton'),
-            tasksModal,
-            document.getElementById('closeTasksModal')
-        );
-        
-        setupModal(
-            document.getElementById('rankButton'),
-            rankModal,
-            document.getElementById('closeRankModal')
-        );
-        
-        // Event listeners
-        tapButton.addEventListener('click', handleTap);
-        
-        // Simulate settings save (for demonstration)
-        setTimeout(() => {
-            showNotification('Settings saved successfully!');
-        }, 1000);
-        
-        // Initialize display
-        updateDisplay();
-    </script>
+            <div class="mining-object" id="miningObject">
+                <div class="mining-core">
+                    <div class="mining-core-inner">
+                        <img class="mining-coin" src="assets/images/animated-coin.png" alt="CX">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="energy-section">
+            <div class="energy-header">
+                <span><i class="fas fa-bolt"></i> Energy</span>
+                <span id="energyDisplay">100 / 100</span>
+            </div>
+            <div class="energy-bar">
+                <div id="energyBarFill" class="energy-fill" style="width:100%"></div>
+            </div>
+        </div>
+
+        <footer class="nav">
+            <div class="nav-item active" id="boostsBtn">
+                <div class="nav-icon"><i class="fas fa-rocket"></i></div>
+                <div class="nav-label">Boosts</div>
+            </div>
+            <div class="nav-item" id="shopBtn">
+                <div class="nav-icon"><i class="fas fa-store"></i></div>
+                <div class="nav-label">Shop</div>
+            </div>
+            <div class="nav-item" id="tasksBtn">
+                <div class="nav-icon"><i class="fas fa-tasks"></i></div>
+                <div class="nav-label">Tasks</div>
+            </div>
+            <div class="nav-item" id="leaderboardBtn">
+                <div class="nav-icon"><i class="fas fa-trophy"></i></div>
+                <div class="nav-label">Rank</div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/game-state.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/ton-connect.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/game-functions.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
