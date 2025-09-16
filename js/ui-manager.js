@@ -179,12 +179,12 @@ const UI = {
                 </div>
             `;
             
-            notificationItem.addEventListener('click', () {
-                notification.read = true;
-                notificationItem.classList.remove('unread');
-                this.updateNotificationBadge();
-                GameState.save();
-            });
+            notificationItem.addEventListener('click', () => {
+             notification.read = true;
+             notificationItem.classList.remove('unread');
+             this.updateNotificationBadge();
+             GameState.save();
+         });
             
             notificationsList.appendChild(notificationItem);
         });
@@ -334,9 +334,9 @@ const UI = {
             document.getElementById('shopModal').classList.add('show');
         });
         
-        document.getElementById('tasksBtn').addEventListener('click', () {
-            document.getElementById('tasksModal').classList.add('show');
-        });
+        document.getElementById('tasksBtn').addEventListener('click', () => {
+    document.getElementById('tasksModal').classList.add('show');
+});
         
         document.getElementById('leaderboardBtn').addEventListener('click', () => {
             this.updateLeaderboard();
